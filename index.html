@@ -96,24 +96,24 @@
     </script>
 
     <script>
-      var audio = document.createElement("audio");
+      var audio = document.createElement('audio');
       audio.controls = true;
-      audio.style.position = "absolute";
-      audio.style.left = "calc(50% - 150px)";
-      audio.style.bottom = "25px";
-      audio.style.display = "none";
+      audio.style.position = 'absolute';
+      audio.style.left = 'calc(50% - 150px)';
+      audio.style.bottom = '25px';
+      audio.style.display = 'none';
       audio.style.opacity = 0;
-      audio.style.transition = "opacity 1s";
+      audio.style.transition = 'opacity 1s';
       document.body.appendChild(audio);
 
-      var source = document.createElement("source");
-      source.src = "audio/Rymdlego_-_Sporel_(Frank_Bolero_Ambient_mix).ogg";
-      source.type = "audio/ogg";
+      var source = document.createElement('source');
+      source.src = 'audio/Rymdlego_-_Sporel_(Frank_Bolero_Ambient_mix).ogg';
+      source.type = 'audio/ogg';
       audio.appendChild(source);
 
-      var source = document.createElement("source");
-      source.src = "audio/Rymdlego_-_Sporel_(Frank_Bolero_Ambient_mix).mp3";
-      source.type = "audio/mpeg";
+      var source = document.createElement('source');
+      source.src = 'audio/Rymdlego_-_Sporel_(Frank_Bolero_Ambient_mix).mp3';
+      source.type = 'audio/mpeg';
       audio.appendChild(source);
 
       var analyser;
@@ -135,7 +135,7 @@
           stencil: false,
         });
         renderer.setSize(window.innerWidth, window.innerHeight);
-        renderer.domElement.addEventListener("dblclick", function (event) {
+        renderer.domElement.addEventListener('dblclick', function (event) {
           var element = document.body;
 
           if (element.requestFullscreen) {
@@ -152,13 +152,13 @@
 
         var gl = renderer.context;
 
-        if (gl.getExtension("OES_texture_float") === null) {
-          alert("No OES_texture_float support for float textures!");
+        if (gl.getExtension('OES_texture_float') === null) {
+          alert('No OES_texture_float support for float textures!');
           return;
         }
 
         if (gl.getParameter(gl.MAX_VERTEX_TEXTURE_IMAGE_UNITS) === 0) {
-          alert("No support for vertex shader textures!");
+          alert('No support for vertex shader textures!');
           return;
         }
 
@@ -231,8 +231,7 @@
           var face = geometry.faces[Math.floor(Math.random() * facesLength)];
 
           var vertex1 = geometry.vertices[face.a];
-          var vertex2 =
-            geometry.vertices[Math.random() > 0.5 ? face.b : face.c];
+          var vertex2 = geometry.vertices[Math.random() > 0.5 ? face.b : face.c];
 
           point.subVectors(vertex2, vertex1);
           point.multiplyScalar(Math.random());
@@ -242,6 +241,8 @@
           data[i + 1] = point.y;
           data[i + 2] = point.z;
         }
+
+        console.log('DATA', { data });
 
         gpgpu = new GPGPU(renderer);
 
@@ -279,23 +280,20 @@
         }
 
         var geometry = new THREE.BufferGeometry();
-        geometry.addAttribute(
-          "position",
-          new THREE.BufferAttribute(positions, 3)
-        );
+        geometry.addAttribute('position', new THREE.BufferAttribute(positions, 3));
 
         particleMaterial = new THREE.ShaderMaterial({
           uniforms: {
-            map: { type: "t", value: rtTexturePos },
-            size: { type: "f", value: size },
+            map: { type: 't', value: rtTexturePos },
+            size: { type: 'f', value: size },
 
             pointColor: {
-              type: "v3",
+              type: 'v3',
               value: new THREE.Vector3(0.1, 0.25, 0.5),
             },
           },
-          vertexShader: document.getElementById("vs-render").textContent,
-          fragmentShader: document.getElementById("fs-render").textContent,
+          vertexShader: document.getElementById('vs-render').textContent,
+          fragmentShader: document.getElementById('fs-render').textContent,
           blending: THREE.AdditiveBlending,
           depthWrite: false,
           // depthTest: false,
@@ -313,11 +311,9 @@
 				scene.add( mesh );
 				*/
 
-        rtPost1 = new THREE.WebGLRenderTarget(
-          window.innerWidth,
-          window.innerHeight,
-          { minFilter: THREE.LinearFilter }
-        );
+        rtPost1 = new THREE.WebGLRenderTarget(window.innerWidth, window.innerHeight, {
+          minFilter: THREE.LinearFilter,
+        });
         rtPost1.texture.generateMipmaps = false;
 
         rtPost2 = new THREE.WebGLRenderTarget(
@@ -340,7 +336,7 @@
 
         //
 
-        window.addEventListener("resize", onWindowResize, false);
+        window.addEventListener('resize', onWindowResize, false);
 
         //
 
@@ -348,7 +344,7 @@
 
         var showControls = function (event) {
           audio.style.opacity = 0.5;
-          document.body.style.cursor = "default";
+          document.body.style.cursor = 'default';
 
           if (timeoutID !== undefined) {
             clearTimeout(timeoutID);
@@ -356,16 +352,16 @@
 
           timeoutID = setTimeout(function () {
             audio.style.opacity = 0;
-            document.body.style.cursor = "none";
+            document.body.style.cursor = 'none';
           }, 1000);
         };
 
-        document.addEventListener("mousemove", showControls);
-        document.addEventListener("touchstart", showControls);
+        document.addEventListener('mousemove', showControls);
+        document.addEventListener('touchstart', showControls);
 
         analyser = new AudioAnalyser(audio);
 
-        audio.style.display = "";
+        audio.style.display = '';
 
         animate();
       }
@@ -404,8 +400,7 @@
         camera.position.z = Math.sin(timer * 0.1) * distance;
         camera.lookAt(scene.position);
 
-        particleMaterial.uniforms.pointColor.value.x =
-          analyser.getFrequency()[30] / 256;
+        particleMaterial.uniforms.pointColor.value.x = analyser.getFrequency()[30] / 256;
 
         var opacity = Math.pow(analyser.getFrequency()[4] / 768, 2);
 
@@ -416,16 +411,10 @@
         simulationShader.setTimer(timer);
 
         if (count % 2 === 0) {
-          gpgpu.pass(
-            simulationShader.setPositionsTexture(rtTexturePos),
-            rtTexturePos2
-          );
+          gpgpu.pass(simulationShader.setPositionsTexture(rtTexturePos), rtTexturePos2);
           particleMaterial.uniforms.map.value = rtTexturePos2;
         } else {
-          gpgpu.pass(
-            simulationShader.setPositionsTexture(rtTexturePos2),
-            rtTexturePos
-          );
+          gpgpu.pass(simulationShader.setPositionsTexture(rtTexturePos2), rtTexturePos);
           particleMaterial.uniforms.map.value = rtTexturePos;
         }
 
@@ -452,20 +441,20 @@
 
       //
 
-      var info = document.createElement("div");
-      info.id = "info";
+      var info = document.createElement('div');
+      info.id = 'info';
       info.innerHTML =
         '"Sporel" by Mr.doob<br /><span style="font-size:18px">music: <a href="https://soundcloud.com/frank-bolero/sporel-mix" target="_blank">Rymdlego - Sporel (Frank Bolero Ambient mix)</a></span><hr />';
       document.body.appendChild(info);
 
-      var start = document.createElement("span");
-      start.textContent = "START";
-      start.style.color = "#ffff22";
-      start.style.cursor = "pointer";
-      start.style.margin = "20px";
-      start.addEventListener("click", function (event) {
-        document.body.style.cursor = "none";
-        info.style.display = "none";
+      var start = document.createElement('span');
+      start.textContent = 'START';
+      start.style.color = '#ffff22';
+      start.style.cursor = 'pointer';
+      start.style.margin = '20px';
+      start.addEventListener('click', function (event) {
+        document.body.style.cursor = 'none';
+        info.style.display = 'none';
 
         audio.play();
 
