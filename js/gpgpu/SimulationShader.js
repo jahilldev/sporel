@@ -3,108 +3,90 @@
  */
 
 GPGPU.SimulationShader = function () {
+  var material = new THREE.ShaderMaterial({
+    uniforms: {
+      tPositions: { type: 't', value: null },
+      tOrigins: { type: 't', value: null },
+      opacity: { type: 'f', value: 0 },
+      timer: { type: 'f', value: 0 },
+    },
+    vertexShader: [
+      'varying vec2 vUv;',
 
-	var material = new THREE.ShaderMaterial( {
+      'void main() {',
+      '	vUv = vec2( uv.x, 1.0 - uv.y );',
+      '	gl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1.0 );',
+      '}',
+    ].join('\n'),
+    fragmentShader: [
+      'uniform float opacity;',
 
-		uniforms: {
-			tPositions: { type: "t", value: null },
-			tOrigins: { type: "t", value: null },
-			opacity: { type: "f", value: 0 },
-			timer: { type: "f", value: 0 }
-		},
-		vertexShader: [
+      'uniform sampler2D tPositions;',
+      'uniform sampler2D tOrigins;',
 
-			'varying vec2 vUv;',
+      'uniform float timer;',
 
-			'void main() {',
-			'	vUv = vec2( uv.x, 1.0 - uv.y );',
-			'	gl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1.0 );',
-			'}'
+      'varying vec2 vUv;',
 
-		].join( '\n' ),
-		fragmentShader: [
+      'float rand(vec2 co){',
+      '    return fract(sin(dot(co.xy ,vec2(12.9898,78.233))) * 43758.5453);',
+      '}',
 
-			'uniform float opacity;',
+      'void main() {',
 
-			'uniform sampler2D tPositions;',
-			'uniform sampler2D tOrigins;',
-			
-			'uniform float timer;',
+      '	vec4 pos = texture2D( tPositions, vUv );',
 
-			'varying vec2 vUv;',
+      '	if ( rand( vUv + timer ) > 0.99 || pos.w <= 0.0 ) {',
 
-			'float rand(vec2 co){',
-			'    return fract(sin(dot(co.xy ,vec2(12.9898,78.233))) * 43758.5453);',
-			'}',
-		
-			'void main() {',
+      '		pos.xyz = texture2D( tOrigins, vUv ).xyz;',
+      '		pos.w = opacity;',
 
-			'	vec4 pos = texture2D( tPositions, vUv );',
+      '	} else {',
 
-			'	if ( rand( vUv + timer ) > 0.99 || pos.w <= 0.0 ) {',
+      '		if ( pos.w <= 0.0 ) discard;',
 
-			'		pos.xyz = texture2D( tOrigins, vUv ).xyz;',
-			'		pos.w = opacity;',
+      '		float x = pos.x + timer * 5.0;',
+      '		float y = pos.y;',
+      '		float z = pos.z + timer * 4.0;',
 
-			'	} else {',
+      '		pos.x += sin( y * 0.033 ) * cos( z * 0.037 ) * 0.4;',
+      '		pos.y += sin( x * 0.035 ) * cos( x * 0.035 ) * 0.4;',
+      '		pos.z += sin( x * 0.037 ) * cos( y * 0.033 ) * 0.4;',
+      '		pos.w -= 0.00001;',
 
-			'		if ( pos.w <= 0.0 ) discard;',
+      '	}',
 
-			'		float x = pos.x + timer * 5.0;',
-			'		float y = pos.y;',
-			'		float z = pos.z + timer * 4.0;',
+      '	gl_FragColor = pos;',
 
-			'		pos.x += sin( y * 0.033 ) * cos( z * 0.037 ) * 0.4;',
-			'		pos.y += sin( x * 0.035 ) * cos( x * 0.035 ) * 0.4;',
-			'		pos.z += sin( x * 0.037 ) * cos( y * 0.033 ) * 0.4;',
-			'		pos.w -= 0.00001;',
+      '}',
+    ].join('\n'),
+  });
 
-			'	}',
+  return {
+    material: material,
 
-			'	gl_FragColor = pos;',
+    setPositionsTexture: function (positions) {
+      material.uniforms.tPositions.value = positions;
 
-			'}',
+      return this;
+    },
 
-		].join( '\n' )
+    setOriginsTexture: function (origins) {
+      material.uniforms.tOrigins.value = origins;
 
-	} );
+      return this;
+    },
 
-	return {
+    setOpacity: function (opacity) {
+      material.uniforms.opacity.value = opacity;
 
-		material: material,
+      return this;
+    },
 
-		setPositionsTexture: function ( positions ) {
+    setTimer: function (timer) {
+      material.uniforms.timer.value = timer;
 
-			material.uniforms.tPositions.value = positions;
-
-			return this;
-
-		},
-
-		setOriginsTexture: function ( origins ) {
-
-			material.uniforms.tOrigins.value = origins;
-
-			return this;
-
-		},
-
-		setOpacity: function ( opacity ) {
-
-			material.uniforms.opacity.value = opacity;
-
-			return this;
-
-		},
-
-		setTimer: function ( timer ) {
-
-			material.uniforms.timer.value = timer;
-
-			return this;
-
-		}
-
-	}
-
+      return this;
+    },
+  };
 };

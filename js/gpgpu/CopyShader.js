@@ -3,47 +3,35 @@
  */
 
 GPGPU.CopyShader = function () {
+  var material = new THREE.ShaderMaterial({
+    uniforms: {
+      texture: { type: 't', value: null },
+    },
+    vertexShader: [
+      'varying vec2 vUv;',
 
-	var material = new THREE.ShaderMaterial( {
+      'void main() {',
+      '	vUv = uv;',
+      '	gl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1.0 );',
+      '} ',
+    ].join('\n'),
+    fragmentShader: [
+      'varying vec2 vUv;',
+      'uniform sampler2D texture;',
 
-		uniforms: {
-			texture: { type: 't', value: null }
-		},
-		vertexShader: [
+      'void main() {',
+      '	gl_FragColor = texture2D( texture, vUv );',
+      '}',
+    ].join('\n'),
+  });
 
-			'varying vec2 vUv;',
+  return {
+    material: material,
 
-			'void main() {',
-			'	vUv = uv;',
-			'	gl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1.0 );',
-			'} '
+    setTexture: function (texture) {
+      material.uniforms.texture.value = texture;
 
-		].join( '\n' ),
-		fragmentShader: [
-
-			'varying vec2 vUv;',
-			'uniform sampler2D texture;',
-
-			'void main() {',
-			'	gl_FragColor = texture2D( texture, vUv );',
-			'}'
-
-		].join( '\n' )
-
-	} );
-
-	return {
-
-		material: material,
-
-		setTexture: function ( texture ) {
-
-			material.uniforms.texture.value = texture;
-
-			return this;
-
-		}
-
-	}
-
+      return this;
+    },
+  };
 };
